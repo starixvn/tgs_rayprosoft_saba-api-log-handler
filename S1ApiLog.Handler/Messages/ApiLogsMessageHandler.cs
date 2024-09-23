@@ -9,7 +9,7 @@ namespace S1ApiLog.Handler.Messages;
 
 public class ApiLogsMessageHandler(
 	ILogger<ApiLogsMessageHandler> logger,
-	IServiceProvider serviceProvider,
+	ICommandService<ApiLogsCommand> commandService,
 	ISentryClient sentryClient) : IAcknowledgeMessageHandler<ReadOnlyMemory<byte>>
 {
 	public async ValueTask HandleAsync(IAcknowledgeMessage<ReadOnlyMemory<byte>> msg, CancellationToken cancellationToken = default)
@@ -43,11 +43,9 @@ public class ApiLogsMessageHandler(
 					Message = "This logData receiving handler."
 				}));
 
-			using var scope = serviceProvider.CreateScope();
-			var service = scope.ServiceProvider.GetRequiredService<ICommandService<ApiLogsCommand>>();
 			var command = new ApiLogsCommand(gameProviderCode, key, action, JsonConvert.SerializeObject(request), JsonConvert.SerializeObject(response));
 
-			await service.ExecuteAsync(command, cancellationToken: cancellationToken).ConfigureAwait(false);
+			await commandService.ExecuteAsync(command, cancellationToken: cancellationToken).ConfigureAwait(false);
 
 			await msg.AckAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 		}
