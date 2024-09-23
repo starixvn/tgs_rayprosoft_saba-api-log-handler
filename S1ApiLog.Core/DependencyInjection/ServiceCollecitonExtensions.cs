@@ -1,0 +1,13 @@
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace S1ApiLog.Core.DependencyInjection;
+
+public static class ServiceCollecitonExtensions
+{
+	public static IServiceCollection AddSabaRecordHandlerApiCore(
+	this IServiceCollection services)
+	=> services
+	.RegisterAllServiceUtilityTypes(Assembly.GetExecutingAssembly(), ServiceLifetime.Transient)
+	.AddSerialNumberGenerator();
+}

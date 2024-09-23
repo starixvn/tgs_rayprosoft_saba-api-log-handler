@@ -1,0 +1,6 @@
+@S1ApiLog.Handler_HostAddress = http://localhost:5007
+
+GET {{S1ApiLog.Handler_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

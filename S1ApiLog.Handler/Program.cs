@@ -1,0 +1,124 @@
+using Microsoft.AspNetCore.HttpLogging;
+using NATS.Client.Core;
+using NATS.Client.JetStream.Models;
+using Npgsql;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using S1ApiLog.Core.Configuarations;
+using S1ApiLog.Core.DependencyInjection;
+using S1ApiLog.Handler;
+using S1ApiLog.Handler.Messages;
+using S1ApiLog.Repositories.DependencyInjection;
+using Tgs.GameRecord.Saba.Common;
+using Tgs.MessageQueue.Nats.Serializers;
+
+var builder = WebApplication.CreateBuilder(args);
+var env = builder.Configuration.GetValue<string>("env");
+
+builder.Services
+	.AddOptions<MongoDBOptions>()
+	.Configure((MongoDBOptions options, IServiceProvider sp) =>
+	{
+		var configuration = sp.GetRequiredService<IConfiguration>();
+		options.ConnectionString = configuration.GetConnectionString("Mongo")!;
+	})
+	.Services
+	.AddSingleton<MongoDBConnectionManager>()
+	.AddOptions<PolicySettingsOptions>()
+	.Configure((PolicySettingsOptions options, IServiceProvider sp) =>
+	{
+		var configuration = sp.GetRequiredService<IConfiguration>();
+		configuration.GetSection("PolicySettings").Bind(options);
+	})
+	.Services
+	.AddSabaRecordHandlerApiCore()
+	.AddApiLogsRepositories(mongoClientResolver: (sp) => sp.GetRequiredService<MongoDBConnectionManager>().MongoClient);
+
+
+builder.Services
+.AddKeyedSingleton("Nats", (sp, _) => new NatsConnection(NatsOpts.Default with
+{
+	Url = builder.Configuration.GetConnectionString("Nats")!,
+	SerializerRegistry = TgsNatsSerializerRegistration.Default
+}))
+.AddMessageQueue()
+.AddNatsMessageQueue(config => config
+	.ConfigureResolveConnection(sp => sp.GetRequiredKeyedService<NatsConnection>("Nats"))
+		.ConfigJetStream(new StreamConfig($"api_log_{env}", [$"{SabaNatsConst.ApiLogsPublish}.{env}"]) with
+		{
+			Storage = StreamConfigStorage.File,
+			Retention = StreamConfigRetention.Interest,
+			NumReplicas = 3,
+		})
+		.AddJetStreamHandler<ApiLogsMessageHandler>(
+			$"{SabaNatsConst.ApiLogsPublish}.{env}",
+			$"api_log_{env}",
+			new ConsumerConfig($"api_log_batch_{env}")
+			{
+				MaxAckPending = 3,
+				DeliverGroup = $"api_log_batch_{env}",
+				AckPolicy = ConsumerConfigAckPolicy.Explicit,
+				OptStartSeq = 0
+			}
+		)
+	)
+.ClearAllExchanges()
+.AddNatsGlobPatternExchange($"{SabaNatsConst.ApiLogsPublish}.{env}");
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddGameInterfaceCore();
+builder.Services
+	.AddHttpLogging(logging => logging.LoggingFields = HttpLoggingFields.All)
+	.AddHealthChecks();
+builder.WebHost.UseSentry();
+
+var excludeExtensions = new[] { "html", "ico", "png", "jpg" };
+
+builder.Services
+	.AddOpenTelemetry()
+	.ConfigureResource(_ => _.AddService(builder.Configuration.GetValue<string>("Otel:ServiceName") ?? ""))
+	.WithTracing(tracerProviderBuilder => tracerProviderBuilder
+		.AddSource("Tgs.*")
+		.AddSource("TGS.*")
+		.AddSource("Valhalla.*")
+		.AddAspNetCoreInstrumentation(options => options.Filter =
+			httpContext => !httpContext.Request.Path.HasValue
+				&& !httpContext.Request.Path.StartsWithSegments("/health")
+				&& !httpContext.Request.Path.StartsWithSegments("/healthcheck")
+				&& !httpContext.Request.Path.StartsWithSegments("/profiler/")
+				&& !httpContext.Request.Path.StartsWithSegments("/metrics")
+				&& !excludeExtensions.Any(
+					ext => httpContext.Request.Path.Value.EndsWith($".{ext}")))
+		.AddHttpClientInstrumentation()
+		.SetSampler(new AlwaysOnSampler())
+		.AddNpgsql()
+		.AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
+		.AddOtlpExporter(options => options.Endpoint = builder.Configuration.GetValue<Uri>("Otel:Collector") ?? new Uri("")))
+	.WithMetrics(meterBuiler => meterBuiler
+		.SetResourceBuilder(ResourceBuilder.CreateDefault()
+			.AddEnvironmentVariableDetector())
+			.AddRuntimeInstrumentation()
+			.AddAspNetCoreInstrumentation()
+			.AddOtlpExporter())
+	.Services
+	.AddProfileViewer()
+	.AddInterceptionService()
+	.AddServiceUtiltiyInterceptors();
+
+builder.Services.AddRequestDecompression();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+var app = builder.Build();
+
+app.UseHttpsRedirection();
+
+app.UseRequestDecompression();
+
+app.MapHealthChecks("/health");
+
+app.MapHealthChecks("/healthcheck");
+
+app.MapHealthChecks("/");
+
+app.Run();
