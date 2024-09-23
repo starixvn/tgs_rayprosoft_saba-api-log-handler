@@ -5,11 +5,11 @@ using Npgsql;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using S1ApiLog.Core.Configuarations;
-using S1ApiLog.Core.DependencyInjection;
-using S1ApiLog.Handler;
-using S1ApiLog.Handler.Messages;
-using S1ApiLog.Repositories.DependencyInjection;
+using SabaApiLog.Core.Configuarations;
+using SabaApiLog.Core.DependencyInjection;
+using SabaApiLog.Handler;
+using SabaApiLog.Handler.Messages;
+using SabaApiLog.Repositories.DependencyInjection;
 using Tgs.GameRecord.Saba.Common;
 using Tgs.MessageQueue.Nats.Serializers;
 

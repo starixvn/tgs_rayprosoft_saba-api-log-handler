@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\S1ApiLog.Core\S1ApiLog.Core.csproj" />
+    <ProjectReference Include="..\SabaApiLog.Core\SabaApiLog.Core.csproj" />
   </ItemGroup>
 
 </Project>

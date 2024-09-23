@@ -1,4 +1,4 @@
-﻿namespace S1ApiLog.Core.Repositories;
+﻿namespace SabaApiLog.Core.Repositories;
 
 public interface IApiLogsRepository
 {

@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace S1ApiLog.Core.DependencyInjection;
+namespace SabaApiLog.Core.DependencyInjection;
 
 public static class ServiceCollecitonExtensions
 {

@@ -1,0 +1,6 @@
+@SabaApiLog.Handler_HostAddress = http://localhost:5007
+
+GET {{SabaApiLog.Handler_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,7 +1,7 @@
-﻿using S1ApiLog.Core.Repositories;
+﻿using SabaApiLog.Core.Repositories;
 using Tgs.ServiceUtility;
 
-namespace S1ApiLog.Core.ApplicationServices;
+namespace SabaApiLog.Core.ApplicationServices;
 
 public class ApiLogsCommandService(IApiLogsRepository logRepository) : ICommandService<ApiLogsCommand>
 {

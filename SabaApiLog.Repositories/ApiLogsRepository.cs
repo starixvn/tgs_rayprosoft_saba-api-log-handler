@@ -1,9 +1,9 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
-using S1ApiLog.Core.Repositories;
-using S1ApiLog.Repositories.Models;
+using SabaApiLog.Core.Repositories;
+using SabaApiLog.Repositories.Models;
 
-namespace S1ApiLog.Repositories;
+namespace SabaApiLog.Repositories;
 
 internal class ApiLogsRepository(IMongoClient client, ISentryClient sentryClient) : IApiLogsRepository
 {

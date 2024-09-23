@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-namespace S1ApiLog.Handler;
+namespace SabaApiLog.Handler;
 
 public class MappingProfile : Profile
 {

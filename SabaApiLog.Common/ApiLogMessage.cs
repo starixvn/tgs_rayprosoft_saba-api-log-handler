@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace S1ApiLog.Common;
+namespace SabaApiLog.Common;
 public record ApiLogMessage
 {
 	[Required]

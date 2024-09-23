@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
-namespace S1ApiLog.Handler;
+namespace SabaApiLog.Handler;
 
 internal class MongoDBConnectionManager
 {

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using S1ApiLog.Core.Repositories;
+using SabaApiLog.Core.Repositories;
 
-namespace S1ApiLog.Repositories.DependencyInjection;
+namespace SabaApiLog.Repositories.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {

@@ -1,4 +1,4 @@
-﻿namespace S1ApiLog.Handler;
+﻿namespace SabaApiLog.Handler;
 
 public record MongoDBOptions
 {

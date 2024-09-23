@@ -1,4 +1,4 @@
-﻿namespace S1ApiLog.Core.Configuarations;
+﻿namespace SabaApiLog.Core.Configuarations;
 public record PolicySettingsOptions
 {
 	public int RetryCount { get; init; } = 3;

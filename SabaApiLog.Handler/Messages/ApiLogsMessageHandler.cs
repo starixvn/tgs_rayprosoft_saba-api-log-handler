@@ -1,11 +1,11 @@
 ﻿using System.Text;
 using Newtonsoft.Json;
-using S1ApiLog.Common;
-using S1ApiLog.Core.ApplicationServices;
+using SabaApiLog.Common;
+using SabaApiLog.Core.ApplicationServices;
 using Tgs.ServiceUtility;
 using Valhalla.MessageQueue;
 
-namespace S1ApiLog.Handler.Messages;
+namespace SabaApiLog.Handler.Messages;
 
 public class ApiLogsMessageHandler(
 	ILogger<ApiLogsMessageHandler> logger,

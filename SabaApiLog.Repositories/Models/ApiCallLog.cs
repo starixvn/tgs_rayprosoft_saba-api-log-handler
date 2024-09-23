@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace S1ApiLog.Repositories.Models;
+namespace SabaApiLog.Repositories.Models;
 
 public record ApiCallLog
 {
