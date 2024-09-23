@@ -56,7 +56,6 @@ builder.Services
 			$"api_log_{env}",
 			new ConsumerConfig($"api_log_batch_{env}")
 			{
-				MaxAckPending = 3,
 				DeliverGroup = $"api_log_batch_{env}",
 				AckPolicy = ConsumerConfigAckPolicy.Explicit,
 				OptStartSeq = 0
