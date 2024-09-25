@@ -56,9 +56,7 @@ builder.Services
 			$"api_log_{env}",
 			new ConsumerConfig($"api_log_batch_{env}")
 			{
-				DeliverGroup = $"api_log_batch_{env}",
 				AckPolicy = ConsumerConfigAckPolicy.Explicit,
-				OptStartSeq = 0
 			}
 		)
 	)
